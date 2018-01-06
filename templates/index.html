@@ -1,0 +1,24 @@
+<!doctype html>
+<html ng-app="ttPoker">
+    <head>    
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
+    </head>
+    <body>
+    {% include 'components/main.html' %}
+    {% include 'theme/style.html' %}
+    {% verbatim %}
+        <div ng-controller="controller">
+
+            <ul>
+                <li ng-repeat="carta in cartas track by $index">
+                    <div class="carta" ng-class="{ 'red' : isRed(carta)}" ng-click="changeCard(carta)" >
+                        <span class="valor">{{carta.valor}}</span>
+                        <span class="naipe">{{carta.naipe}}</span>
+                    </div>
+                    
+                </li>
+            </ul>
+        </div>
+    {% endverbatim %}
+    </body>
+</html>
