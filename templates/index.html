@@ -1,23 +1,48 @@
 <!doctype html>
 <html ng-app="ttPoker">
     <head>    
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+            <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+            <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.min.css" rel="stylesheet">
     </head>
-    <body>
+    <body ng-controller="controller">
+    {% include 'components/dragdrop.html' %}
     {% include 'components/main.html' %}
     {% include 'theme/style.html' %}
     {% verbatim %}
-        <div ng-controller="controller">
+        <div>
 
-            <ul>
-                <li ng-repeat="carta in cartas track by $index">
-                    <div class="carta" ng-class="{ 'red' : isRed(carta)}" ng-click="changeCard(carta)" >
-                        <span class="valor">{{carta.valor}}</span>
+                <div style="float:left">
+                    <div ng-repeat="carta in cartas track by $index"   ng-class="{ 'red' : isRed(carta)}" class="carta" 
+                    data-drag="{{carta.drag}}" ng-model="cartas" data-jqyoui-options="{revert: 'invalid'}" 
+                    jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" >
+                        <span class="valor" >{{carta.valor}}</span>
                         <span class="naipe">{{carta.naipe}}</span>
                     </div>
-                    
-                </li>
-            </ul>
+                </div>
+            <div style="float:left; padding: 35px">
+                <table class="painel-jogador" ng-repeat="jogador in jogadores track by $index">
+                    <thead>
+                        <th ng-repeat="coluna in jogador.colunas">
+                            {{$index}}
+                        </th>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="coluna in jogador.colunas"  >
+                            <td class="tile" ng-repeat="linha in coluna.linhas" jqyoui-droppable="{onDrop: 'changeCard()'}" 
+                            data-drop="linha.data.length === 0" ng-model='linha.data' >
+                                <div ng-repeat="carta in linha.data"   ng-class="{ 'red' : isRed(carta)}" class="carta" >
+                                    <span class="valor" >{{carta.valor}}</span>
+                                    <span class="naipe">{{carta.naipe}}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            {{lista}}
         </div>
     {% endverbatim %}
     </body>

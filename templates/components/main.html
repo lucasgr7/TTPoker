@@ -1,15 +1,17 @@
 <script>
-angular.module('ttPoker', [])
+angular.module('ttPoker', ['ngDragDrop'])
 .controller('controller',function($scope){
   var naipes = ['♣','♦','♥','♠'];
   var valores = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
   $scope.cartas = [];
   $scope.jogadores = 2;
   indexCartas = 0;
+  $scope.lista = [];
   
 
   gerarBaralho();
   loadCartas();
+  gerarPainelJogador();
 
   function gerarBaralho(){
     baralho = [];
@@ -19,7 +21,8 @@ angular.module('ttPoker', [])
           naipe: naipe,
           valor: v,
           especial:false,
-          index: getUniqueKey()
+          index: getUniqueKey(),
+          drag: true
         });
       });
     });
@@ -28,16 +31,43 @@ angular.module('ttPoker', [])
         naipe: null,
         valor:'thief', //ladrão
         especial : true,
-        index: getUniqueKey()
+        index: getUniqueKey(),
+          drag: true
       });
       baralho.push({
         naipe: null,
         valor:'joker', //coringa$scope.yourName = "Lucas"
         especial : true,
-        index: getUniqueKey()
+        index: getUniqueKey(),
+          drag: true
       });
     }
-    console.log(baralho);
+  }
+
+  function gerarPainelJogador(){
+    $scope.jogadores = [{},{}];
+    $scope.jogadores.map(function(jogador){
+      jogador.colunas = [];
+      for(var x = 0; x < 3 ;x ++){
+        jogador.colunas.push({
+          v: x,
+          linhas: [
+          {
+            linha: 0,
+            data: []
+          },
+            {
+              linha: 1,
+            data: []
+            },
+            {
+              linha: 2,
+            data: []
+            }
+          ]
+        });
+      }
+    });
   }
 
   function getCartaAleatoria(){
@@ -69,13 +99,20 @@ angular.module('ttPoker', [])
       return false;
   }
 
-  $scope.changeCard = function(carta){
-    var i = $scope.cartas.indexOf(carta);
-    $scope.cartas[i] = getCartaAleatoria();
+  $scope.changeCard = function(){
+    var c = 0;
+    for(var x = 0; x < $scope.cartas.length; x++){
+      if(isEmpty($scope.cartas[x])){
+        $scope.cartas[x] = getCartaAleatoria();
+      }
+    }
   }
-
-
-
-
+  function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
 })
 </script>
