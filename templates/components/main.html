@@ -1,7 +1,21 @@
 <script>
 angular.module('ttPoker', ['ngDragDrop'])
 .controller('controller',function($scope){
-  var naipes = ['♣','♦','♥','♠'];
+  var naipes = [{
+    simbolo: '♣',
+    texto: 'paus'
+  },{
+   simbolo: '♦',
+   texto: 'ouro'
+  },
+  {
+    simbolo: '♥',
+    texto: 'coracao' 
+  },
+  {
+   simbolo: '♠',
+   texto: 'espadilha'
+  }];
   var valores = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
   $scope.cartas = [];
   $scope.jogadores = 2;
@@ -48,6 +62,9 @@ angular.module('ttPoker', ['ngDragDrop'])
     $scope.jogadores = [{},{}];
     $scope.jogadores.map(function(jogador){
       jogador.colunas = [];
+      jogador.pontuacoes = [];
+      jogador.getNaipe = getNaipe;
+      jogador.getCarta = getCarta;
       for(var x = 0; x < 3 ;x ++){
         jogador.colunas.push({
           v: x,
@@ -93,14 +110,24 @@ angular.module('ttPoker', ['ngDragDrop'])
     if(carta == null || carta.naipe == null){
       return false;
     }
-    if(carta.naipe.includes(['♦']) || carta.naipe.includes(['♥']))
+    if(carta.naipe.simbolo.includes(['♦']) || carta.naipe.simbolo.includes(['♥']))
       return true;
     else
       return false;
   }
+  $scope.cardPlaced = function(){
+    $scope.changeCard();
+    $scope.jogadores.forEach(jogador => {
+      jogador.pontuacoes = [];
+      //Pontuação das naipe 
+      validaNaipes(jogador);
+      validaValores(jogador);
+      console.log(jogador);
+    });
+    return null;
+  }
 
   $scope.changeCard = function(){
-    var c = 0;
     for(var x = 0; x < $scope.cartas.length; x++){
       if(isEmpty($scope.cartas[x])){
         $scope.cartas[x] = getCartaAleatoria();
@@ -113,6 +140,75 @@ angular.module('ttPoker', ['ngDragDrop'])
             return false;
     }
     return true;
-}
+  }
+  function getNaipe(x, y){
+    if(this.colunas[y] != null && this.colunas[y].linhas[x] != null && this.colunas[y].linhas[x].data != null && this.colunas[y].linhas[x].data.length > 0){
+      return this.colunas[y].linhas[x].data[0].naipe.texto;
+    }
+  }
+  function getCarta(x, y){
+    if(this.colunas[y] != null && this.colunas[y].linhas[x] != null && this.colunas[y].linhas[x].data != null && this.colunas[y].linhas[x].data.length > 0){
+      return this.colunas[y].linhas[x].data[0];
+    }
+    return {
+      valor: null
+    };
+  }
+  function validaNaipes(jogador){
+    for(var x = 0; x < 2; x++){
+        if(jogador.getNaipe(x,0) != null && jogador.getNaipe(x,0) === jogador.getNaipe(x, 1) && jogador.getNaipe(x, 1) === jogador.getNaipe(x, 2)){
+          jogador.pontuacoes.push({
+            naipe_igual: true,
+            valor: 350
+          })
+        }
+        if(jogador.getNaipe(0,x) != null && jogador.getNaipe(0,x) === jogador.getNaipe(1, x) && jogador.getNaipe(1, x)=== jogador.getNaipe(2, x)){
+          jogador.pontuacoes.push({
+            naipe_igual: true,
+            valor: 350
+          })
+        }
+      }
+      if(jogador.getNaipe(0,0) != null && jogador.getNaipe(0,0) === jogador.getNaipe(1, 1) && jogador.getNaipe(1, 1)=== jogador.getNaipe(2, 2)){
+          jogador.pontuacoes.push({
+            naipe_igual: true,
+            valor: 350
+          })
+        }
+        if(jogador.getNaipe(0,2) != null && jogador.getNaipe(0,2) === jogador.getNaipe(1, 1) && jogador.getNaipe(1, 1)=== jogador.getNaipe(2, 0)){
+          jogador.pontuacoes.push({
+            naipe_igual: true,
+            valor: 350
+          })
+        }
+  }
+  function validaValores(jogador){
+    for(var x = 0; x < 2; x++){
+        if(jogador.getCarta(x,0) != null && jogador.getCarta(x,0).valor != null && jogador.getCarta(x,0).valor === jogador.getCarta(x, 1).valor && jogador.getCarta(x, 1).valor === jogador.getCarta(x, 2).valor){
+          jogador.pontuacoes.push({
+            trinca: true,
+            valor: 750
+          })
+        }
+        if(jogador.getCarta(0,x) != null && jogador.getCarta(0,x).valor != null &&  jogador.getCarta(0,x).valor === jogador.getCarta(1, x).valor && jogador.getCarta(1, x).valor === jogador.getCarta(2, x).valor){
+          jogador.pontuacoes.push({
+            trinca: true,
+            valor: 750
+          })
+        }
+      }
+      if(jogador.getCarta(0,0) != null && jogador.getCarta(0,0).valor != null && jogador.getCarta(0,0).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 2).valor){
+          jogador.pontuacoes.push({
+            trinca: true,
+            valor: 750
+          })
+        }
+        if(jogador.getCarta(0,2) != null && jogador.getCarta(0,2).valor != null && jogador.getCarta(0,2).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 0).valor){
+          jogador.pontuacoes.push({
+            trinca: true,
+            valor: 750
+          })
+        }
+  }
 })
 </script>

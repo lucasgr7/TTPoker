@@ -14,33 +14,40 @@
     {% verbatim %}
         <div>
 
-                <div style="float:left">
-                    <div ng-repeat="carta in cartas track by $index"   ng-class="{ 'red' : isRed(carta)}" class="carta" 
-                    data-drag="{{carta.drag}}" ng-model="cartas" data-jqyoui-options="{revert: 'invalid'}" 
-                    jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" >
+            <div style="float:left">
+                <div ng-repeat="carta in cartas track by $index"   ng-class="{ 'red' : isRed(carta)}" class="carta" 
+                data-drag="{{carta.drag}}" ng-model="cartas" data-jqyoui-options="{revert: 'invalid'}" 
+                jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" >
                         <span class="valor" >{{carta.valor}}</span>
-                        <span class="naipe">{{carta.naipe}}</span>
+                        <span class="naipe">{{carta.naipe.simbolo}}</span>
                     </div>
                 </div>
             <div style="float:left; padding: 35px">
-                <table class="painel-jogador" ng-repeat="jogador in jogadores track by $index">
-                    <thead>
-                        <th ng-repeat="coluna in jogador.colunas">
-                            {{$index}}
-                        </th>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="coluna in jogador.colunas"  >
-                            <td class="tile" ng-repeat="linha in coluna.linhas" jqyoui-droppable="{onDrop: 'changeCard()'}" 
-                            data-drop="linha.data.length === 0" ng-model='linha.data' >
-                                <div ng-repeat="carta in linha.data"   ng-class="{ 'red' : isRed(carta)}" class="carta" >
-                                    <span class="valor" >{{carta.valor}}</span>
-                                    <span class="naipe">{{carta.naipe}}</span>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div  class="painel-jogador" ng-repeat="jogador in jogadores track by $index">
+                    <div>
+                            Pontuações: {{jogador.pontuacoes}}
+                    </div>
+                    <table>
+                    
+                            <thead>
+                                <th ng-repeat="coluna in jogador.colunas">
+                                    {{$index}}
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="coluna in jogador.colunas"  >
+                                    <td class="tile" ng-repeat="linha in coluna.linhas" jqyoui-droppable="{onDrop: 'cardPlaced()'}" 
+                                    data-drop="linha.data.length === 0" ng-model='linha.data' >
+                                        <div ng-repeat="carta in linha.data"   ng-class="{ 'red' : isRed(carta)}" class="carta" >
+                                            <span class="valor" >{{carta.valor}}</span>
+                                            <span class="naipe">{{carta.naipe.simbolo}}</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                </div>
+              
             </div>
             {{lista}}
         </div>
