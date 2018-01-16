@@ -36,26 +36,30 @@ angular.module('ttPoker', ['ngDragDrop'])
           valor: v,
           especial:false,
           index: getUniqueKey(),
-          drag: true
+          isNextOrPrevious : isNextOrPrevious,
+          drag: true,
+          valorNumerico: generateNumeric(v)
         });
       });
     });
-    for(var x = 0; x < 4; x++){
-      baralho.push({
-        naipe: null,
-        valor:'thief', //ladrão
-        especial : true,
-        index: getUniqueKey(),
-          drag: true
-      });
-      baralho.push({
-        naipe: null,
-        valor:'joker', //coringa$scope.yourName = "Lucas"
-        especial : true,
-        index: getUniqueKey(),
-          drag: true
-      });
-    }
+    // for(var x = 0; x < 4; x++){
+    //   baralho.push({
+    //     naipe: null,
+    //     valor:'thief', //ladrão
+    //     especial : true,
+    //     index: getUniqueKey(),
+    //     isNextOrPrevious : isNextOrPrevious,
+    //     drag: true
+    //   });
+    //   baralho.push({
+    //     naipe: null,
+    //     valor:'joker', //coringa
+    //     especial : true,
+    //     index: getUniqueKey(),
+    //     isNextOrPrevious : isNextOrPrevious,
+    //     drag: true
+    //   });
+    // }
   }
 
   function gerarPainelJogador(){
@@ -100,6 +104,23 @@ angular.module('ttPoker', ['ngDragDrop'])
       $scope.cartas.push(getCartaAleatoria());
     }
   }
+  function generateNumeric(v){
+            if(v === 'J'){
+              return 11;
+            }
+            else if(v === 'Q'){
+              return 12;
+            }
+            else if(v === 'K'){
+              return 13;
+            }
+            else if(v === 'A'){
+              return 14;
+            }else{
+              return Number(v);
+            }
+
+          }
 
   function getUniqueKey(){
     indexCartas += 1;
@@ -121,8 +142,8 @@ angular.module('ttPoker', ['ngDragDrop'])
       jogador.pontuacoes = [];
       //Pontuação das naipe 
       validaNaipes(jogador);
-      validaValores(jogador);
-      console.log(jogador);
+      validaTrincaDupla(jogador);
+      validaSequencias(jogador);
     });
     return null;
   }
@@ -143,7 +164,9 @@ angular.module('ttPoker', ['ngDragDrop'])
   }
   function getNaipe(x, y){
     if(this.colunas[y] != null && this.colunas[y].linhas[x] != null && this.colunas[y].linhas[x].data != null && this.colunas[y].linhas[x].data.length > 0){
-      return this.colunas[y].linhas[x].data[0].naipe.texto;
+      if( this.colunas[y].linhas[x].data[0].naipe != null)
+        return this.colunas[y].linhas[x].data[0].naipe.texto;
+      return null;
     }
   }
   function getCarta(x, y){
@@ -182,33 +205,126 @@ angular.module('ttPoker', ['ngDragDrop'])
           })
         }
   }
-  function validaValores(jogador){
+  function validaTrincaDupla(jogador){
     for(var x = 0; x < 2; x++){
-        if(jogador.getCarta(x,0) != null && jogador.getCarta(x,0).valor != null && jogador.getCarta(x,0).valor === jogador.getCarta(x, 1).valor && jogador.getCarta(x, 1).valor === jogador.getCarta(x, 2).valor){
+      var carta_a = jogador.getCarta(x, 0);
+      var carta_b = jogador.getCarta(x, 1);
+      var carta_c = jogador.getCarta(x, 2);
+      // Vertical
+      var cartasValidas = isCard(carta_a) && isCard(carta_b) && isCard(carta_c);
+      if(cartasValidas){
+        if(carta_a.valor == carta_b.valor && carta_b.valor === varta_c.valor){
           jogador.pontuacoes.push({
             trinca: true,
             valor: 750
           })
-        }
-        if(jogador.getCarta(0,x) != null && jogador.getCarta(0,x).valor != null &&  jogador.getCarta(0,x).valor === jogador.getCarta(1, x).valor && jogador.getCarta(1, x).valor === jogador.getCarta(2, x).valor){
+        }else if(carta_a.valor == carta_b.valor || 
+          carta_a.valor == carta_c.valor ||
+          carta_b.valor == carta_c.valor){
           jogador.pontuacoes.push({
-            trinca: true,
-            valor: 750
+            dupla: true,
+            valor: 200
           })
         }
       }
-      if(jogador.getCarta(0,0) != null && jogador.getCarta(0,0).valor != null && jogador.getCarta(0,0).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 2).valor){
+      carta_a = jogador.getCarta(0, x);
+      carta_b = jogador.getCarta(1, x);
+      carta_c = jogador.getCarta(2, x);
+      // Horizontal
+      if(cartasValidas){
+        if(carta_a.valor == carta_b.valor && carta_b.valor === varta_c.valor){
+          jogador.pontuacoes.push({
+              straight: true,
+              valor: 450
+            })
+        }else if(carta_a.valor == carta_b.valor || 
+          carta_a.valor == carta_c.valor ||
+          carta_b.valor == carta_c.valor){
+          jogador.pontuacoes.push({
+            dupla: true,
+            valor: 200
+          })
+        }
+      }
+      cartasValidas = isCard(jogador.getCarta(0,0)) && isCard(jogador.getCarta(1,1)) && isCard(jogador.getCarta(2,2));
+      if(cartasValidas && jogador.getCarta(0,0).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 2).valor){
           jogador.pontuacoes.push({
             trinca: true,
             valor: 750
           })
+        }else if(
+          jogador.getCarta(0,0).valor === jogador.getCarta(1, 1).valor ||
+          jogador.getCarta(1,1).valor === jogador.getCarta(2, 2).valor ||
+          jogador.getCarta(0,0).valor === jogador.getCarta(2, 2).valor
+        ){
+          jogador.pontuacoes.push({
+            dupla: true,
+            valor: 200
+          })
         }
-        if(jogador.getCarta(0,2) != null && jogador.getCarta(0,2).valor != null && jogador.getCarta(0,2).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 0).valor){
+      cartasValidas = isCard(jogador.getCarta(0,2)) && isCard(jogador.getCarta(1,1)) && isCard(jogador.getCarta(2,0));
+        if(cartasValidas && jogador.getCarta(0,2).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 0).valor){
           jogador.pontuacoes.push({
             trinca: true,
             valor: 750
           })
+        }else if(
+          jogador.getCarta(0,2).valor === jogador.getCarta(1, 1).valor ||
+          jogador.getCarta(1,1).valor === jogador.getCarta(2, 0).valor ||
+          jogador.getCarta(0,2).valor === jogador.getCarta(2, 0).valor
+        ){
+          jogador.pontuacoes.push({
+            dupla: true,
+            valor: 200
+          })
         }
+    }
+  }
+  function validaSequencias(jogador){
+    for(var x = 0; x < 2; x++){
+      var carta_a = jogador.getCarta(x, 0);
+      var carta_b = jogador.getCarta(x, 1);
+      var carta_c = jogador.getCarta(x, 2);
+      // Vertical
+      if(isCard(carta_a) && isCard(carta_b) && isCard(carta_c)){
+        if(carta_a.isNextOrPrevious(carta_b) && carta_b.isNextOrPrevious(carta_c) || carta_b.isNextOrPrevious(carta_c) && carta_c.isNextOrPrevious(carta_a)){
+          jogador.pontuacoes.push({
+              straight: true,
+              valor: 450
+            })
+        }
+      }
+      carta_a = jogador.getCarta(0, x);
+      carta_b = jogador.getCarta(1, x);
+      carta_c = jogador.getCarta(2, x);
+      // Horizontal
+      if(isCard(carta_a) && isCard(carta_b) && isCard(carta_c)){
+        if(carta_a.isNextOrPrevious(carta_b) && carta_b.isNextOrPrevious(carta_c) || carta_b.isNextOrPrevious(carta_c) && carta_c.isNextOrPrevious(carta_a)){
+          jogador.pontuacoes.push({
+              straight: true,
+              valor: 450
+            })
+        }
+      }
+    }
+      // if(jogador.getCarta(0,0) != null && jogador.getCarta(0,0).valor != null && jogador.getCarta(0,0).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 2).valor){
+      //     jogador.pontuacoes.push({
+      //       trinca: true,
+      //       valor: 750
+      //     })
+      //   }
+      //   if(jogador.getCarta(0,2) != null && jogador.getCarta(0,2).valor != null && jogador.getCarta(0,2).valor === jogador.getCarta(1, 1).valor && jogador.getCarta(1, 1).valor === jogador.getCarta(2, 0).valor){
+      //     jogador.pontuacoes.push({
+      //       trinca: true,
+      //       valor: 750
+      //     })
+      //   }
+  }
+  function isNextOrPrevious(carta){
+    return this.valorNumerico + 1 == carta.valorNumerico || this.valorNumerico - 1 == carta.valorNumerico;
+  }
+  function isCard(carta){
+    return carta != null && carta.valor != null;
   }
 })
 </script>
