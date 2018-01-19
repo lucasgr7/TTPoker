@@ -17,7 +17,7 @@
             <div style="float:left">
                 <div ng-repeat="carta in cartas track by $index"   ng-class="{ 'red' : isRed(carta)}" class="carta" 
                 data-drag="{{carta.drag}}" ng-model="cartas" data-jqyoui-options="{revert: 'invalid'}" 
-                jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" >
+                jqyoui-draggable="{index: {{$index}},placeholder:true,animate:true}" ng-mouseenter="setCarta(carta)" >
                         <span class="valor" >{{carta.valor}}</span>
                         <span class="naipe">{{carta.naipe.simbolo}}</span>
                     </div>
@@ -37,8 +37,8 @@
                             </thead>
                             <tbody>
                                 <tr ng-repeat="coluna in jogador.colunas"  >
-                                    <td class="tile" ng-repeat="linha in coluna.linhas" jqyoui-droppable="{onDrop: 'cardPlaced()'}" 
-                                    data-drop="linha.data.length === 0" ng-model='linha.data' >
+                                    <td class="tile" ng-repeat="linha in coluna.linhas" jqyoui-droppable="{onDrop: 'cardPlaced(e)'}" 
+                                    data-drop="isHoldingThief || linha.data.length === 0" ng-model='linha.data' data-number="{{linha.number}}" data-player_id={{jogador.id}} >
                                         <div ng-repeat="carta in linha.data"   ng-class="{ 'red' : isRed(carta)}" class="carta" >
                                             <span class="valor" >{{carta.valor}}</span>
                                             <span class="naipe">{{carta.naipe.simbolo}}</span>
