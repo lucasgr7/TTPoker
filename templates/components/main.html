@@ -22,6 +22,7 @@ angular.module('ttPoker', ['ngDragDrop'])
   $scope.jogadores = 2;
   indexCartas = 0;
   $scope.lista = [];
+  $scope.cartas_roubadas = [];
   
 
   gerarBaralho();
@@ -158,9 +159,28 @@ angular.module('ttPoker', ['ngDragDrop'])
     console.log(e);
 
     if($scope.isHoldingThief){
-      var posicao_roubada = e.target.dataset.number; //posição roubada
-      var jogador_id = e.target.dataset.jogador_id; //posição roubada
+      var posicao_roubada = Number(e.target.dataset.number == null ? 0 : e.target.dataset.number); //posição roubada
+      var vitima_id = Number(e.target.dataset.player_id  == null ? 0 : e.target.dataset.player_id); //posição roubada
+      var jogador = $scope.jogadores.find((x) => {
+        if(x.id === vitima_id){
+          return x;
+        }
+      });
+      jogador.colunas.forEach((col) => {
+        col.linhas.forEach((lin) => {
+          if(lin.number === posicao_roubada){
+            $scope.cartas_roubadas = [];
+            $scope.cartas_roubadas.push(lin.data[0]);
+            lin.data.splice(0,2);
+            $scope.isHoldingThief = false;
+            $scope.isPlacingThief = true;
+          }
+        })
+      });
 
+    }else if($scope.isPlacingThief){
+      $scope.cartas_roubadas = [];
+      $scope.isPlacingThief = false;
     }
 
     $scope.changeCard();
