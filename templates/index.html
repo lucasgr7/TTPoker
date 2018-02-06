@@ -6,14 +6,15 @@
             <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
             <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
             <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://rawgit.com/rzajac/angularjs-slider/master/dist/rzslider.js"></script>
     </head>
     <body ng-controller="controller">
     {% include 'components/dragdrop.html' %}
+    {% include 'components/slider.html' %}
     {% include 'components/main.html' %}
     {% include 'theme/style.html' %}
-    {% verbatim %}
+    {% verbatim %} 
         <div>
-
             <div style="float:left">
                     <div ng-repeat="carta in cartas track by $index" ng-show="cartas_roubadas.length === 0"  ng-class="{ 'red' : isRed(carta)}" class="carta" 
                         data-drag="{{carta.drag}}" ng-model="cartas" data-jqyoui-options="{revert: 'invalid'}" 
@@ -31,8 +32,24 @@
             <div style="float:left; padding: 35px">
                 <div  class="painel-jogador" ng-repeat="jogador in jogadores track by $index">
                     <div>
-                            <h3>{{jogador.totalPontos}}</h3>
-                            Pontuações: {{jogador.pontuacoes}}
+                        <div>
+                            <p>Valor: {{jogador.pick}}</p>
+                            <rzslider rz-slider-model="jogador.pick.valor" rz-slider-options="valoresSliderOptions.optionsValor">
+                        </div>
+                        <div>
+                            <p>Naipe</p>
+                            <rzslider rz-slider-model="jogador.pick.naipe" rz-slider-options="valoresSliderOptions.optionsNaipe">
+                        </div>
+                        <button ng-click="setCoringa()">Ok</button>
+                    </div>
+                    <!-- <div  ng-class="{ 'red' : isRed(jogador.pick)}" jqyoui-droppable="{onDrop: 'cardPlaced(e)'}" class="carta" data-drag="jogador.pick != null" ng-model="jogador.pick" data-jqyoui-options="{revert: 'invalid'}" 
+                        jqyoui-draggable="{index: {{0}},placeholder:true,animate:true}"  >
+                            <span class="valor" >{{jogador.pick.valor}}</span>
+                            <span class="naipe">{{jogador.pick.naipe}}</span>
+                    </div> -->
+                    <div>
+                        <h3>{{jogador.totalPontos}}</h3>
+                        Pontuações: {{jogador.pontuacoes}}
                     </div>
                     <table>
                     

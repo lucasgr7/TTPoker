@@ -1,23 +1,20 @@
 <script>
-angular.module('ttPoker', ['ngDragDrop'])
+angular.module('ttPoker', ['ngDragDrop', 'rzModule'])
 .controller('controller',function($scope){
-  var naipes = [{
-    simbolo: '♣',
-    texto: 'paus'
-  },{
-   simbolo: '♦',
-   texto: 'ouro'
-  },
-  {
-    simbolo: '♥',
-    texto: 'coracao' 
-  },
-  {
-   simbolo: '♠',
-   texto: 'espadilha'
-  }];
+  var naipes = [{simbolo: '♣',texto: 'paus'},{simbolo: '♦',texto: 'ouro'},{simbolo: '♥',texto: 'coracao' },{simbolo: '♠',texto: 'espadilha'}];
   var valores = [ //'2','3','4','5','6','7','8','9','10','J',
   'Q','K','A'];
+
+  $scope.valoresSliderOptions = {
+    optionsValor: {
+      stepsArray: valores
+    },
+    optionsNaipe: {
+      stepsArray: naipes.map((x) =>{
+        return x.simbolo
+      })
+    }
+  }
   $scope.cartas = [];
   $scope.jogadores = 2;
   indexCartas = 0;
@@ -45,22 +42,22 @@ angular.module('ttPoker', ['ngDragDrop'])
       });
     });
     for(var x = 0; x < 4; x++){
+      // baralho.push({
+      //   naipe: null,
+      //   valor:'thief', //ladrão
+      //   especial : true,
+      //   index: getUniqueKey(),
+      //   isNextOrPrevious : isNextOrPrevious,
+      //   drag: true
+      // });
       baralho.push({
         naipe: null,
-        valor:'thief', //ladrão
+        valor:'joker', //coringa
         especial : true,
         index: getUniqueKey(),
         isNextOrPrevious : isNextOrPrevious,
         drag: true
       });
-    //   baralho.push({
-    //     naipe: null,
-    //     valor:'joker', //coringa
-    //     especial : true,
-    //     index: getUniqueKey(),
-    //     isNextOrPrevious : isNextOrPrevious,
-    //     drag: true
-    //   });
     }
   }
   $scope.setCarta = function(carta){
@@ -150,14 +147,17 @@ angular.module('ttPoker', ['ngDragDrop'])
     if(carta == null || carta.naipe == null){
       return false;
     }
-    if(carta.naipe.simbolo.includes(['♦']) || carta.naipe.simbolo.includes(['♥']))
+    if(carta.naipe.simbolo != null){
+      if(carta.naipe.simbolo.includes(['♦']) || carta.naipe.simbolo.includes(['♥']))
+        return true;
+    }
+    else if(carta.naipe.includes(['♦']) || carta.naipe.includes(['♥']))
       return true;
     else
       return false;
   }
   $scope.cardPlaced = function(e){
     console.log(e);
-
     if($scope.isHoldingThief){
       var posicao_roubada = Number(e.target.dataset.number == null ? 0 : e.target.dataset.number); //posição roubada
       var vitima_id = Number(e.target.dataset.player_id  == null ? 0 : e.target.dataset.player_id); //posição roubada
@@ -181,7 +181,32 @@ angular.module('ttPoker', ['ngDragDrop'])
     }else if($scope.isPlacingThief){
       $scope.cartas_roubadas = [];
       $scope.isPlacingThief = false;
+    }else if($scope.isHoldingJoker){
+      var poslicao_coringa = Number(e.target.dataset.number == null ? 0 : e.target.dataset.number); //posição roubada
+      var jogador_id = Number(e.target.dataset.player_id  == null ? 0 : e.target.dataset.player_id); //posição roubada
+      var jogador = $scope.jogadores.find((x) => {
+        if(x.id === jogador_id){
+          return x;
+        }
+      });
+
+      jogador.colunas.forEach((col) => {
+        col.linhas.forEach((lin) => {
+          if(lin.number === poslicao_coringa){
+            $scope.coringaSet = lin.data[0];
+            $scope.isHoldingJoker = false;
+          }
+        })
+      });
+      console.log(jogador);
     }
+    $scope.setCoringa = function(){
+      $scope.coringaSet.valor = jogador.pick.valor;
+      $scope.coringaSet.valorNumerico = generateNumeric(jogador.pick.valor);
+      $scope.coringaSet.naipe = convertNaipeToObject(jogador.pick.naipe);
+      $scope.cardPlaced();
+    }
+    
 
     $scope.changeCard();
     $scope.jogadores.forEach(jogador => {
@@ -216,8 +241,13 @@ angular.module('ttPoker', ['ngDragDrop'])
   }
   function getNaipe(x, y){
     if(this.colunas[y] != null && this.colunas[y].linhas[x] != null && this.colunas[y].linhas[x].data != null && this.colunas[y].linhas[x].data.length > 0){
-      if( this.colunas[y].linhas[x].data[0].naipe != null)
-        return this.colunas[y].linhas[x].data[0].naipe.texto;
+      var naipe = this.colunas[y].linhas[x].data[0].naipe;
+      if(naipe != null)
+      {
+        if(naipe.simbolo != null){
+          return this.colunas[y].linhas[x].data[0].naipe.texto;
+        }
+      }
       return null;
     }
   }
@@ -403,6 +433,13 @@ angular.module('ttPoker', ['ngDragDrop'])
           });
         }
       }
+  }
+  function convertNaipeToObject(naipe){
+    return naipes.filter((x) => {
+      if(x.simbolo === naipe){
+        return x;
+      }
+    })[0];
   }
   function isRoyal(cartas){
     var isKing = false;
